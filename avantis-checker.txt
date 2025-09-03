@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avantis Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #0d0615;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .calculator-card {
+            background-color: #1a0e28;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 2.5rem;
+            max-width: 28rem;
+            width: 100%;
+        }
+        h1 {
+            color: #a78bfa;
+            font-weight: 700;
+        }
+        label {
+            color: #c0c0c0;
+        }
+        input[type="number"] {
+            background-color: #2b1f3d;
+            border: 1px solid #4a3360;
+            color: #e0e0e0;
+            border-radius: 0.75rem;
+        }
+        input[type="number"]:focus {
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.5);
+        }
+        .calculate-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(90deg, #8b5cf6, #c084fc);
+            color: white;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            height: 3rem;
+        }
+        .calculate-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(167, 139, 250, 0.4);
+        }
+        .results-box {
+            background-color: #2b1f3d;
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+        .results-box p {
+            color: #c0c0c0;
+        }
+        .results-box .text-green-600 {
+            color: #6ee7b7;
+        }
+        #disclaimer {
+            color: #888888;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 p-8 flex flex-col items-center justify-center min-h-screen">
+
+    <div class="calculator-card text-center">
+        <h1 class="text-3xl font-bold mb-4">Avantis Checker</h1>
+        <p class="text-gray-400 mb-6">Estimate your Avantis leaderboard reward based on your mindshare on Wallchain</p>
+
+        <form id="calculatorForm" class="space-y-4">
+            <div class="flex flex-col items-start">
+                <label for="mindshare" class="font-medium mb-1">Your Wallchain Mindshare (%)</label>
+                <input type="number" id="mindshare" step="0.01" class="w-full px-4 py-2 focus:outline-none" placeholder="e.g., 0.32">
+            </div>
+
+            <div class="flex flex-col items-start">
+                <label for="fdv" class="font-medium mb-1">Project FDV (in millions)</label>
+                <input type="number" id="fdv" step="1" class="w-full px-4 py-2 focus:outline-none" placeholder="e.g., 100">
+            </div>
+
+            <button type="submit" class="w-full px-4 py-2 mt-4 calculate-button">
+                Calculate
+            </button>
+        </form>
+
+        <div id="results" class="mt-8 text-left space-y-2 hidden">
+            <h2 class="text-2xl font-bold text-gray-200">Estimated Results</h2>
+            <div class="results-box">
+                <p class="font-medium">Your Estimated Tokens:</p>
+                <p id="user_tokens" class="text-lg font-bold"></p>
+            </div>
+            <div class="results-box">
+                <p class="font-medium">Your Estimated Value:</p>
+                <p id="user_value" class="text-lg font-bold"></p>
+            </div>
+        </div>
+
+        <p id="disclaimer" class="mt-6 text-sm hidden">
+            This is an estimation. A detailed eligibility checker and claims guide will be released soon.
+        </p>
+    </div>
+
+    <script>
+        const form = document.getElementById('calculatorForm');
+        const resultsDiv = document.getElementById('results');
+        const disclaimer = document.getElementById('disclaimer');
+
+        const userTokensEl = document.getElementById('user_tokens');
+        const userValueEl = document.getElementById('user_value');
+
+        // Constants based on the data you provided
+        const TOTAL_SUPPLY = 1000000000;
+        const WALLCHAIN_ALLOCATION_PERCENTAGE = 0.0015;
+        const TOTAL_MINSHARE_TOP_500 = 83.0760;
+
+        const totalAllocatedTokens = TOTAL_SUPPLY * WALLCHAIN_ALLOCATION_PERCENTAGE;
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const mindshare = parseFloat(document.getElementById('mindshare').value);
+            const fdv = parseFloat(document.getElementById('fdv').value);
+
+            if (isNaN(mindshare) || mindshare <= 0 || isNaN(fdv) || fdv < 0) {
+                alert('Please enter a valid mindshare and FDV.');
+                return;
+            }
+
+            const userShare = mindshare / TOTAL_MINSHARE_TOP_500;
+
+            const userTokens = userShare * totalAllocatedTokens;
+            const totalWallchainValueUSD = fdv * 1000000 * WALLCHAIN_ALLOCATION_PERCENTAGE;
+const userValueUSD = userShare * totalWallchainValueUSD;
+
+
+            userTokensEl.textContent = `${userTokens.toLocaleString(undefined, {maximumFractionDigits: 0})} tokens`;
+            userValueEl.textContent = `$${userValueUSD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            resultsDiv.classList.remove('hidden');
+            disclaimer.classList.remove('hidden');
+        });
+    </script>
+
+</body>
+</html>
